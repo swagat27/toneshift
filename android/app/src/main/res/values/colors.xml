@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="toneshift_bg">#121212</color>
+    <color name="toneshift_card">#1E1E1E</color>
+    <color name="toneshift_accent">#FFC107</color>
+    <color name="toneshift_text">#FFFFFF</color>
+    <color name="toneshift_muted">#B0B0B0</color>
+</resources>
