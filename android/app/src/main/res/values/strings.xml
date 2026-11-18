@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">Shows a small ToneShift pill when you are typing, so you can rewrite the text in the current field in one tap: Short, Formal, Grammar Fix, or your own custom instruction. ToneShift only reads the focused text field when you tap a rewrite button, and only sends that text to Google Gemini with your own API key.</string>
+</resources>
