@@ -7,8 +7,8 @@ on:
 
 permissions:
   contents: write
-  
-  jobs:
+
+jobs:
   build:
     runs-on: ubuntu-latest
     steps:
@@ -33,6 +33,7 @@ permissions:
           mkdir -p /tmp/toneshift-custom
           cp -r android/app/src /tmp/toneshift-custom/src
           cp android/app/build.gradle /tmp/toneshift-custom/app-build.gradle
+          cp android/build.gradle /tmp/toneshift-custom/root-build.gradle || true
           cp android/settings.gradle /tmp/toneshift-custom/settings.gradle || true
           cp android/gradle.properties /tmp/toneshift-custom/gradle.properties || true
           if [ ! -f "android/gradlew" ]; then
