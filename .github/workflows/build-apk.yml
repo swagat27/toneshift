@@ -1,0 +1,70 @@
+name: Build ToneShift APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.5"
+          channel: stable
+          cache: true
+
+      - name: Generate missing Android scaffolding, keep ToneShift custom files
+        run: |
+          mkdir -p /tmp/toneshift-custom
+          cp -r android/app/src /tmp/toneshift-custom/src
+          cp android/app/build.gradle /tmp/toneshift-custom/app-build.gradle
+          cp android/settings.gradle /tmp/toneshift-custom/settings.gradle || true
+          cp android/gradle.properties /tmp/toneshift-custom/gradle.properties || true
+          if [ ! -f "android/gradlew" ]; then
+            flutter create --platforms=android --org com.toneshift --project-name toneshift .
+          fi
+          cp -r /tmp/toneshift-custom/src/* android/app/src/
+          cp /tmp/toneshift-custom/app-build.gradle android/app/build.gradle
+          cp /tmp/toneshift-custom/settings.gradle android/settings.gradle || true
+          cp /tmp/toneshift-custom/gradle.properties android/gradle.properties || true
+          echo "Final AndroidManifest:"
+          cat android/app/src/main/AndroidManifest.xml
+          ls android/app/src/main/kotlin/com/toneshift/toneshift/
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: toneshift-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+      - name: Create GitHub Release with APK
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: ToneShift Build ${{ github.run_number }}
+          files: build/app/outputs/flutter-apk/app-release.apk
+          body: |
+            ToneShift APK, built automatically from the latest code on main.
+            Download app-release.apk below, install it on your Android phone, add your own Gemini API key in the app, and enable the floating pill in Settings, Accessibility, if you want it.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
